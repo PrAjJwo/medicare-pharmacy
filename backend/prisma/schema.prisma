@@ -1,0 +1,205 @@
+// Medicare Pharmacy — Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  PHARMACIST
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+  EXPIRED
+}
+
+enum SaleStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PrescriptionStatus {
+  PENDING
+  DISPENSED
+  CANCELLED
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(PHARMACIST)
+  phone        String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sales         Sale[]
+  prescriptions Prescription[]
+  auditLogs     AuditLog[]
+  @@map("users")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  medicines   Medicine[]
+  @@map("categories")
+}
+
+model Supplier {
+  id          String    @id @default(cuid())
+  name        String
+  contactName String?
+  phone       String?
+  email       String?
+  address     String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  purchases   Purchase[]
+  @@map("suppliers")
+}
+
+model Medicine {
+  id              String   @id @default(cuid())
+  name            String
+  genericName     String?
+  brand           String?
+  barcode         String?  @unique
+  categoryId      String
+  dosageForm      String   // tablet, capsule, syrup, injection, etc.
+  strength        String?  // e.g. "500mg", "250mg/5ml"
+  unit            String   @default("pcs") // pcs, bottle, strip
+  requiresPrescription Boolean @default(false)
+  description     String?
+  minStockLevel   Int      @default(10)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  category        Category       @relation(fields: [categoryId], references: [id])
+  stockBatches    StockBatch[]
+  saleItems       SaleItem[]
+  @@map("medicines")
+}
+
+model StockBatch {
+  id             String      @id @default(cuid())
+  medicineId     String
+  batchNumber    String
+  quantity       Int
+  remainingQty   Int
+  purchasePrice  Decimal     @db.Decimal(10, 2)
+  sellingPrice   Decimal     @db.Decimal(10, 2)
+  expiryDate     DateTime
+  manufacturedDate DateTime?
+  status         StockStatus @default(IN_STOCK)
+  supplierId     String?
+  purchaseId     String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  medicine   Medicine   @relation(fields: [medicineId], references: [id])
+  saleItems  SaleItem[]
+  @@map("stock_batches")
+}
+
+model Purchase {
+  id           String   @id @default(cuid())
+  invoiceNo    String   @unique
+  supplierId   String
+  totalAmount  Decimal  @db.Decimal(10, 2)
+  paidAmount   Decimal  @db.Decimal(10, 2) @default(0)
+  purchaseDate DateTime @default(now())
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  @@map("purchases")
+}
+
+model Sale {
+  id           String     @id @default(cuid())
+  invoiceNo    String     @unique
+  userId       String
+  customerId   String?
+  totalAmount  Decimal    @db.Decimal(10, 2)
+  discount     Decimal    @db.Decimal(10, 2) @default(0)
+  paidAmount   Decimal    @db.Decimal(10, 2)
+  changeAmount Decimal    @db.Decimal(10, 2) @default(0)
+  status       SaleStatus @default(COMPLETED)
+  prescriptionId String?  @unique
+  notes        String?
+  createdAt    DateTime   @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  saleItems    SaleItem[]
+  prescription Prescription? @relation(fields: [prescriptionId], references: [id])
+  @@map("sales")
+}
+
+model SaleItem {
+  id           String  @id @default(cuid())
+  saleId       String
+  medicineId   String
+  stockBatchId String
+  quantity     Int
+  unitPrice    Decimal @db.Decimal(10, 2)
+  discount     Decimal @db.Decimal(10, 2) @default(0)
+  total        Decimal @db.Decimal(10, 2)
+
+  sale       Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  medicine   Medicine   @relation(fields: [medicineId], references: [id])
+  stockBatch StockBatch @relation(fields: [stockBatchId], references: [id])
+  @@map("sale_items")
+}
+
+model Prescription {
+  id           String             @id @default(cuid())
+  patientName  String
+  patientAge   Int?
+  doctorName   String?
+  clinicName   String?
+  prescribedAt DateTime
+  status       PrescriptionStatus @default(PENDING)
+  userId       String
+  notes        String?
+  createdAt    DateTime           @default(now())
+
+  user User  @relation(fields: [userId], references: [id])
+  sale Sale?
+  @@map("prescriptions")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entity    String   // medicine, sale, user, stock, etc.
+  entityId  String?
+  oldData   Json?
+  newData   Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  @@map("audit_logs")
+}
