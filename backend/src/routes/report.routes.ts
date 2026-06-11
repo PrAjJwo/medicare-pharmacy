@@ -1,4 +1,10 @@
 import { Router } from 'express';
+import { getDashboardStats } from '../controllers/report.controller';
+import { authenticate } from '../middleware/auth';
+
 const router = Router();
-// TODO: add report routes
+
+router.use(authenticate);
+router.get('/dashboard', getDashboardStats);
+
 export default router;

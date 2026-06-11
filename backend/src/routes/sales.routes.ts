@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
 const router = Router();
-// TODO: add sales routes
+router.use(authenticate);
+// TODO: sales routes
 export default router;
