@@ -2,7 +2,7 @@ export type Role = 'ADMIN' | 'PHARMACIST';
 export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' | 'EXPIRED';
 export type SaleStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
 
-export interface User { id: string; name: string; email: string; role: Role; isActive: boolean; createdAt: string; }
+export interface User { id: string; name: string; email: string; role: Role; phone?: string; isActive: boolean; createdAt: string; }
 export interface Category { id: string; name: string; description?: string; }
 export interface Medicine { id: string; name: string; genericName?: string; brand?: string; barcode?: string; categoryId: string; category: Category; dosageForm: string; strength?: string; unit: string; requiresPrescription: boolean; minStockLevel: number; isActive: boolean; stockBatches?: StockBatch[]; createdAt: string; }
 export interface StockBatch { id: string; medicineId: string; medicine?: Medicine; batchNumber: string; quantity: number; remainingQty: number; purchasePrice: number; sellingPrice: number; expiryDate: string; status: StockStatus; createdAt: string; }

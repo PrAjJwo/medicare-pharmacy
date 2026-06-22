@@ -11,6 +11,7 @@ import Inventory from './pages/Inventory';
 import Sales from './pages/Sales';
 import Reports from './pages/Reports';
 import Suppliers from './pages/Suppliers';
+import Users from './pages/Users';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } },
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="sales"      element={<Sales />} />
             <Route path="suppliers"  element={<Suppliers />} />
             <Route path="reports"    element={<Reports />} />
+            <Route path="users"      element={<Users />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
