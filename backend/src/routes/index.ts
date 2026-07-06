@@ -6,6 +6,7 @@ import salesRoutes from './sales.routes';
 import supplierRoutes from './supplier.routes';
 import reportRoutes from './report.routes';
 import userRoutes from './user.routes';
+import purchaseRoutes from './purchase.routes';
 
 const router = Router();
 router.use('/auth', authRoutes);
@@ -15,4 +16,5 @@ router.use('/sales', salesRoutes);
 router.use('/suppliers', supplierRoutes);
 router.use('/reports', reportRoutes);
 router.use('/users', userRoutes);
+router.use('/purchases', purchaseRoutes);
 export default router;

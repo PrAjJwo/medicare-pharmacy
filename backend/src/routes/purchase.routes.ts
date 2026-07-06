@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { getPurchases, getPurchaseById, createPurchase, addPayment, getSupplierBalance } from '../controllers/purchase.controller';
+import { authenticate, authorize } from '../middleware/auth';
+const router = Router();
+router.use(authenticate);
+router.get('/', getPurchases);
+router.get('/supplier-balance', getSupplierBalance);
+router.get('/:id', getPurchaseById);
+router.post('/', authorize('ADMIN', 'PHARMACIST'), createPurchase);
+router.post('/:id/payment', authorize('ADMIN', 'PHARMACIST'), addPayment);
+export default router;

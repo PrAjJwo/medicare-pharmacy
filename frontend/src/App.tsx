@@ -12,6 +12,7 @@ import Sales from './pages/Sales';
 import Reports from './pages/Reports';
 import Suppliers from './pages/Suppliers';
 import Users from './pages/Users';
+import Purchases from './pages/Purchases';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 * 5, retry: 1 } },
@@ -26,27 +27,15 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: { fontSize: '14px', borderRadius: '8px' },
-            duration: 3000,
-          }}
-        />
+        <Toaster position="top-right" toastOptions={{ style: { fontSize: '14px', borderRadius: '8px' }, duration: 3000 }} />
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <AppLayout />
-              </RequireAuth>
-            }
-          >
+          <Route path="/" element={<RequireAuth><AppLayout /></RequireAuth>}>
             <Route index element={<Dashboard />} />
             <Route path="medicines"  element={<Medicines />} />
             <Route path="inventory"  element={<Inventory />} />
             <Route path="sales"      element={<Sales />} />
+            <Route path="purchases"  element={<Purchases />} />
             <Route path="suppliers"  element={<Suppliers />} />
             <Route path="reports"    element={<Reports />} />
             <Route path="users"      element={<Users />} />

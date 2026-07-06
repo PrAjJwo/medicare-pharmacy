@@ -5,6 +5,7 @@ const pageTitles: Record<string, { title: string; description: string }> = {
   '/':           { title: 'Dashboard',  description: 'Overview of pharmacy operations' },
   '/medicines':  { title: 'Medicines',  description: 'Manage your medicine catalogue' },
   '/inventory':  { title: 'Inventory',  description: 'Stock levels, batches and expiry tracking' },
+  '/purchases':  { title: 'Purchases',  description: 'Party bills, payments and outstanding balances' },
   '/sales':      { title: 'Sales',      description: 'Process sales and manage invoices' },
   '/suppliers':  { title: 'Suppliers',  description: 'Manage suppliers and purchase orders' },
   '/reports':    { title: 'Reports',    description: 'Sales, stock and expiry reports' },
